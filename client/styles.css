@@ -1,0 +1,160 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: Verdana;
+}
+
+.column.side, .content {
+    padding: 0;
+    height: 100%;
+    overflow: auto;
+}
+
+.column.side {
+    flex: 1;
+}
+
+.column.main {
+    flex: 5;
+}
+
+.column.main .content h1 {
+    margin-top: 0;
+}
+
+.container {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
+    /*overflow: hidden;*/
+
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+
+.column.side {
+    background: #144a9b;
+}
+
+.column.side a {
+    text-decoration: none;
+    color: white;
+}
+
+.column.side p {
+    margin: 0;
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+}
+
+.column.side p:hover {
+    background-color: rgba(255,255,255, .5);
+}
+
+.shaded {
+    background-color: #f0f0f0;
+}
+
+
+.column.main .content {
+    flex: 1;
+    width: 100%;
+}
+
+.column.main .content h1 {
+    margin: 12px;
+    /*position: fixed;*/
+    /*top: 0;*/
+}
+
+.message {
+    padding: 4px 12px;
+}
+
+.message > .username {
+    font-weight: bold;
+}
+
+.message .timestamp {
+    font-style: italic;
+    color: #555;
+}
+
+.column.main,
+.column.main .content {
+    position: relative;
+}
+
+.column.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.content {
+    flex: 1;
+}
+
+form.search {
+
+    flex: 0 0 25px;
+
+    height: 25px;
+    width: 100%;
+
+    margin-top: 1px;
+
+    display: flex;
+    flex-direction: row;
+
+    z-index: 9001;
+    background-color: rgba(255,255,255,.98);
+    box-sizing: border-box;
+
+    align-items: center;
+    justify-content: space-around;
+}
+
+.search input {
+    flex: 1;
+    height: 25px;
+    font-size: 16px;
+}
+
+.search button {
+    flex: 0 0 80px;
+    width: 80px;
+    height: 30px;
+}
+
+.highlight {
+    background-color: yellow;
+    font-weight: bold;
+}
+
+.channel.selected {
+    font-weight: bold;
+}
+
+.message.selected {
+    background-color: lightgoldenrodyellow;
+}
+
+.message {
+    word-break: break-word;
+}
+
+.message p {
+    margin: 2px;
+}
+
+a {
+    color: #2196F3;
+    text-decoration: none;
+}

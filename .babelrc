@@ -1,0 +1,8 @@
+{
+  "plugins": ["transform-decorators-legacy"],
+  "presets": [
+    "stage-0",
+    "react",
+    "react-hmre"
+  ]
+}
