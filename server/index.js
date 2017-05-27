@@ -24,7 +24,6 @@ express()
   .get('/channels', catcher(listChannels))
   .get('/channels/:channel', catcher(getChannel))
   .get('/search/:term', catcher(search))
-  .get('/emoji/:name', catcher(lookupEmoji))
   .listen(5000);
 
 
@@ -41,12 +40,6 @@ function catcher(handler) {
     }
   }
 }
-
-function lookupEmoji(req, res, next) {
-  const { name } = req.params;
-  res.send(slackToEmoji(name))
-}
-
 
 async function listUsers(req, res, next) {
   const users = require(BACKUP_PATH + '/users.json');
@@ -108,8 +101,13 @@ async function getChannel(req, res, next) {
 
   const files = await readDir(channelPath);
 
+  const contents = await Promise.all(files.map(file => {
 
-  const contents = await Promise.all(files.map(file => require(channelPath + '/' + file)));
+    const messages = require(channelPath + '/' + file);
+    messages.forEach(m => m.text = slackToEmoji(m.text));
+    return messages;
+
+  }));
 
   res.send([].concat(...contents));
 
@@ -125,7 +123,13 @@ async function search(req, res, next) {
 
   for (const channel of channels) {
     const messages = await getMessages(channel.name);
-    const filtered = messages.filter(message => message.text.match(re));
+
+    const filtered = messages.filter(message => {
+      const isMatch = message.text.match(re);
+      if (isMatch) message.text = slackToEmoji(message.text);
+      return isMatch;
+    });
+
     if (filtered.length) {
       results.push({ channel: channel.name, messages: filtered.sort((a,b) => a.ts - b.ts) });
     }
@@ -140,8 +144,6 @@ async function getUser(req, res, next) {
 
   const {id} = req.params;
 
-  console.log('GETTING MESSAGES FOR USER', id);
-
   const results = [];
 
   for (const channel of channels) {
@@ -152,7 +154,7 @@ async function getUser(req, res, next) {
 
       const isMatch = message.user === id;
 
-      if (isMatch) console.log(message.user, id);
+      if (isMatch) message.text = slackToEmoji(message.text);
       return isMatch;
     });
 

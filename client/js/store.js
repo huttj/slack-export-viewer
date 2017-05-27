@@ -11,8 +11,6 @@ class Store {
 
   @observable isLoading = false;
 
-  @observable emoji = observable.map({});
-
   constructor() {
     this.loadChannels();
     this.loadUsers();
@@ -23,13 +21,6 @@ class Store {
       console.error(message);
     } else {
       console.log(message);
-    }
-  }
-
-  @observable loadEmoji(name) {
-    if (!this.emoji.has(name)) {
-      fetch('/emoji/' + name).then(n => n.text())
-        .then(emoji => this.emoji.set(name, emoji));
     }
   }
 

@@ -9,19 +9,29 @@ export default class Message extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      renderedOnce: false
+      text: this.props.message.text
     };
   }
 
   componentDidMount() {
-    setTimeout(()=> {
-      this.setState({ renderedOnce: true })
-    }, 1)
+    this.parseMessage();
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.message !== this.props.message || !this.props.message) {
+      this.parseMessage();
+    }
+  }
+
+  parseMessage() {
+    setTimeout(() => {
+      this.setState({text: messageText(this.props.message.text)})
+    }, 1);
   }
 
   select() {
     Store.selectedMessage = this.props.message;
-    Store.loadChannel({ name: this.props.channel });
+    Store.loadChannel({name: this.props.channel});
   }
 
   selectUser(e, user) {
@@ -33,19 +43,15 @@ export default class Message extends Component {
   render() {
 
     if (Store.isSelectedMessage(this.props.message)) {
-      setTimeout(()=>this.refs.self.scrollIntoView());
+      setTimeout(() => this.refs.self.scrollIntoView());
       // try {
       //   this.refs.self.scrollIntoView();
       // } catch (e) {}
     }
 
-    const { i } = this.props;
-    const {user, text, ts } = this.props.message;
+    const {i} = this.props;
+    const {user, text, ts} = this.props.message;
 
-    let content = text;
-    if (this.state.renderedOnce) {
-      content = messageText(this.props.message.text);
-    }
 
     const User = Store.findUser(user);
 
@@ -57,7 +63,8 @@ export default class Message extends Component {
     }
 
     return (
-      <div style={{backgroundColor, padding: 8, paddingBottom: 9 }} onClick={() => this.select()} ref="self">
+      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self"
+           key={this.state.text}>
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <img style={{
             flex: '0 0 32',
@@ -67,10 +74,10 @@ export default class Message extends Component {
             marginRight: 6,
             marginLeft: 2,
             borderRadius: 100
-          }} src={User.profile.image_32} alt="" onClick={e=>this.selectUser(e, User)}/>
+          }} src={User.profile.image_32} alt="" onClick={e => this.selectUser(e, User)}/>
           <div style={{flex: 1}}>
-            <p style={{margin: 2, fontWeight: 'bold'}} onClick={e=>this.selectUser(e, User)}>{User.name}</p>
-            <p style={{margin: 2, fontSize: 14, color: colors.textLight }}> {new Date(ts * 1000).toLocaleString()}</p>
+            <p style={{margin: 2, fontWeight: 'bold'}} onClick={e => this.selectUser(e, User)}>{User.name}</p>
+            <p style={{margin: 2, fontSize: 14, color: colors.textLight}}> {new Date(ts * 1000).toLocaleString()}</p>
             <div style={{
               margin: 2,
               marginTop: 6,
@@ -78,8 +85,8 @@ export default class Message extends Component {
               lineHeight: 1.33,
               color: colors.text
             }}>
-              {/*{this.state.text}*/}
-              {content}
+              {this.state.text}
+              {/*{content}*/}
             </div>
           </div>
         </div>
@@ -104,11 +111,11 @@ function messageText(text = '') {
         case '@':
           const username = str.slice(1).split('|')[0];
           const user = Store.findUser(username);
-          result.push(<a href={'#'+user.name} onClick={e => {
+          result.push(<a href={'#' + user.name} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             Store.loadUser(user);
-          }}>{highlight('@'+user.name)}</a>);
+          }}>{highlight('@' + user.name)}</a>);
           break;
         case '_':
           result.push(<em>{highlight(str.slice(1, -1))}</em>);
@@ -151,7 +158,6 @@ function highlight(text) {
 
 
   let parsed = text
-    .replace(/:[^: ]+:/g, match => Store.loadEmoji(match) || Store.emoji.get(match))
     .replace(/&(\w+);/g, function (match, capture) {
       switch (capture) {
         case 'gt':
