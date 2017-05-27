@@ -46,6 +46,11 @@ Similar to the indexing issue, selecting a message loads the entire channel for 
 message. It would be much better to load a subset of messages around a selected message, and send that to the client.
 Infinite scrolling could then load the later messages, as well.
 
+#### Client-side Routing
+
+It would be nice for each event to generate a history stack and appropriate hash change, so that states could be linked
+via URL, and so the user can go back to previous states/pages.
+
 #### Word Cloud
 
 It would be fun to add a word cloud, globally, per user, and per channel, to see what the most commonly used words are.
