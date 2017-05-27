@@ -16,7 +16,7 @@ export default class Main extends Component {
     if (Store.isLoading) {
       inner = (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: colors.primarySuperLight }}>
-          <h1 style={{ flex: 1, textAlign: 'center', marginBottom: '15%', color: colors.primaryDark }}>Loading!</h1>
+          <h1 style={{ flex: 1, textAlign: 'center', marginBottom: '15%', color: colors.primaryDark, textShadow: '0 0 3px rgba(255, 255, 255, 0.75)' }}>Loading!</h1>
         </div>
       );
     } else if (Store.display) {
