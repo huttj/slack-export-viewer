@@ -117,7 +117,7 @@ async function search(req, res, next) {
   const channels = require(BACKUP_PATH + '/channels.json');
 
   const {term} = req.params;
-  const re = new RegExp(term);
+  const re = new RegExp(term,'i');
 
   const results = [];
 

@@ -31,7 +31,7 @@ export default class Message extends Component {
 
   select() {
     Store.selectedMessage = this.props.message;
-    Store.loadChannel({name: this.props.channel});
+    Store.selectChannel(this.props.channel);
   }
 
   selectUser(e, user) {
@@ -43,7 +43,7 @@ export default class Message extends Component {
   render() {
 
     if (Store.isSelectedMessage(this.props.message)) {
-      setTimeout(() => this.refs.self.scrollIntoView());
+      setTimeout(() => this.refs.self && this.refs.self.scrollIntoView());
       // try {
       //   this.refs.self.scrollIntoView();
       // } catch (e) {}
@@ -172,7 +172,7 @@ function highlight(text) {
     });
 
   if (Store.searchTerm) {
-    parsed = parsed.replace(new RegExp(Store.searchTerm, 'g'), function (match, capture) {
+    parsed = parsed.replace(new RegExp(Store.searchTerm, 'gi'), function (match, capture) {
       result.push(<span style={{backgroundColor: colors.accent}}>{match}</span>);
       return REPLACEMENT;
     })

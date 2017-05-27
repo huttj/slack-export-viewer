@@ -77,11 +77,19 @@ class Store {
       };
   }
 
+  async selectChannel(channelName) {
+    const channel = this.channels.find(channel => channel.name === channelName);
+    this.loadChannel(channel);
+  }
+
   async loadChannel(channel) {
+    if (!channel) return this.display = this.display;
+
     if (!channel.messages) {
       const messages = await this.fetch('./channels/' + channel.name);
       channel.messages = messages;
     }
+
     this.display = [channel];
   }
 
