@@ -26,6 +26,13 @@ interface for consuming the API.
 
 ## Future Improvements
 
+#### Standardize API
+
+I created the initial API based on what I thought I needed on the client side, and I added to it as I built the app. As
+a result, the responses are inconsistent, and where the app gets some data (like message counts) is quite unreliable and
+messy. It would be best to standardize the API so that it would return the messages in question, metadata like counts
+and next and previous messages, and so on.
+
 #### Leverage Proper Indexes
 
 There is no database or indexing; it merely loads and filters the JSON in memory. This could be ameliorated by either:
