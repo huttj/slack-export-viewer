@@ -131,22 +131,34 @@ class Store {
     this.display = [channel];
   }
 
-  async loadUser(user, nextPage) {
+  async loadUser(user, page) {
     if (!user) return this.display = this.display;
 
     console.log(user);
 
-    if (!user.messages || !nextPage) {
+    if (!user.messages || !page) {
       const messages = await this.fetch('./users/' + user.id);
       user.messages = messages;
       user.page = 1;
       user.type = 'user';
       this.scrollPos = 0;
 
-    } else if (nextPage) {
-      user.page++;
-      const messages = await this.fetch('./users/' + user.id + '?page=' + user.page);
-      user.messages.push(...messages);
+    } else if (page === 'next') {
+
+      this.selectedMessage = null;
+      const { ts } = user.messages[user.messages.length-1];
+      const messages = await this.fetch('./users/' + user.id + '?after=true&user=' + user.id + '&ts=' + ts);
+      user.messages.push(...messages.slice(1));
+
+    } else if (page === 'prev') {
+
+      this.selectedMessage = null;
+      this.goToMessage = user.messages[0];
+
+      const { ts } = user.messages[0];
+
+      const messages = await this.fetch('./users/' + user.id + '?before=true&user=' + user.id + '&ts=' + ts);
+      user.messages.unshift(...messages.slice(0,-1));
 
     }
 
@@ -175,7 +187,8 @@ class Store {
 
     const message = channel.messages[0];
     const { first } = channel;
-    return first.user !== message.user || first.ts !== message.ts;
+
+    return first.user !== message.user || first.ts != message.ts;
   }
 
   hasNext(channel) {
@@ -184,7 +197,7 @@ class Store {
     const message = channel.messages[channel.messages.length-1];
     const { last } = channel;
 
-    return last.user !== message.user || last.ts !== message.ts;
+    return last.user !== message.user || last.ts != message.ts;
   }
 }
 

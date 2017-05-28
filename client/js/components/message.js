@@ -8,6 +8,8 @@ export default class Message extends Component {
 
   select() {
     Store.selectedMessage = this.props.message;
+    console.log('selecting channel', this.props.message.channel || this.props.channel);
+    console.log('selecting message', this.props.message);
     Store.loadMessage(this.props.channel, this.props.message);
   }
 

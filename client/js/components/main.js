@@ -136,7 +136,7 @@ class Channel extends Component {
     }
 
     let loadMore;
-    if (Store.hasNext(channel)) {
+    if (Store.hasNext(channel) || channel.type === 'search' && channel.count > messages.length) {
       const remaining = channel.count - messages.length;
       const postfix = remaining === 1 ? '' : 's';
       const loadMoreText = channel.type === 'search' ? `View ${remaining} more result${postfix} in ${channel.channel}` : `Load more (${commas(remaining)} remaining)`;
