@@ -107,11 +107,12 @@ class Store {
     if (!channel) return this.display = this.display;
 
     if (!channel.messages || !page) {
+
+      this.scrollPos = 0;
+
       const { messages } = await this.fetch('./channels/' + channel.name);
       channel.type = 'channel';
       channel.messages = messages;
-      channel.page = 1;
-      this.scrollPos = 900000;
 
     } else if (page === 'next') {
 

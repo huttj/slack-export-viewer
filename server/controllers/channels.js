@@ -47,7 +47,7 @@ exports.get = catcher(async function getChannel(req, res, next) {
     if (i > -1) messages = channelMessages.slice(adjustedBefore, adjustedAfter);
 
   } else {
-    messages = channelMessages.slice(-PAGE_SIZE);
+    messages = channelMessages.slice(0, PAGE_SIZE);
   }
 
   messages.forEach(m => m.text = slackToEmoji(m.text));
