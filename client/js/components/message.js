@@ -42,7 +42,7 @@ export default class Message extends Component {
   render() {
 
     const {i} = this.props;
-    const { user, text, ts, username, icons, channel } = this.props.message;
+    const { user, text, ts, username, icons, channel, file } = this.props.message;
 
     const User = Store.findUser(user);
 
@@ -66,6 +66,11 @@ export default class Message extends Component {
     let channelName = null;
     if (channel && this.props.type === 'user') {
       channelName = <span> in <a href={'#' + channel} onClick={e => this.select(e)}>{channel}</a></span>
+    }
+
+    let image = null;
+    if (file && file.mimetype.match('image')) {
+      image = <img style={{ marginTop: 6, maxWidth: '100%' }} src={file.url_private} alt={file.title || file.name} />
     }
 
     return (
@@ -92,6 +97,7 @@ export default class Message extends Component {
             }}>
               {messageText(text)}
             </div>
+            {image}
           </div>
         </div>
 
