@@ -83,6 +83,7 @@ class Store {
 
   async selectChannel(channelName) {
     const channel = this.channels.find(channel => channel.name === channelName);
+    this.scrollPos = 0;
     this.loadChannel(channel);
   }
 
@@ -102,6 +103,8 @@ class Store {
       channel.page++;
       const messages = await this.fetch('./channels/' + channel.name + '?page=' + channel.page);
       channel.messages.push(...messages);
+    } else {
+      this.scrollPos = 0;
     }
 
     this.display = [channel];

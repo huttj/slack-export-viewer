@@ -57,6 +57,7 @@ class ChannelItem extends Component {
         style={{textDecoration: 'none'}}
         key={channel.id}
         onClick={() => {
+          Store.scrollPos = 0;
           Store.selectedMessage = null;
           Store.loadChannel(channel);
         }}
