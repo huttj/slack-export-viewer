@@ -75,8 +75,10 @@ async function listChannels(req, res, next) {
 
   if (req.query.count) {
     await Promise.all(channels.map(async channel => {
-      const messages = await getMessages(channel.name);
+      const messages = (await getMessages(channel.name)).sort((a,b) => a.ts - b.ts);
       channel.count = messages.length;
+      channel.first = messages[0];
+      channel.last = messages[messages.length - 1];
     }));
   }
 
@@ -98,7 +100,7 @@ async function getMessages(channel) {
 async function getChannel(req, res, next) {
 
   const { channel } = req.params;
-  const { page=1, user, ts } = req.query;
+  const { page=1, user, ts, after, before } = req.query;
 
   const start = (page - 1) * PAGE_SIZE;
   const end   = start + PAGE_SIZE;
@@ -112,12 +114,13 @@ async function getChannel(req, res, next) {
 
     const i = channelMessages.findIndex(m => m.ts === ts && (user === 'undefined' || m.user === user));
 
-    const topOff = Math.ceil((i + 1) / PAGE_SIZE) * PAGE_SIZE;
+    const adjustedAfter  = after ? i + 1 + PAGE_SIZE : i + 1;
+    const adjustedBefore = before ? Math.max(0, i - PAGE_SIZE) : i;
 
-    if (i > -1) messages = channelMessages.slice(Math.max(0, topOff - PAGE_SIZE), topOff);
+    if (i > -1) messages = channelMessages.slice(adjustedBefore, adjustedAfter);
 
   } else {
-    messages = channelMessages.slice(start, end);
+    messages = channelMessages.slice(-PAGE_SIZE);
   }
 
   messages.forEach(m => m.text = slackToEmoji(m.text));

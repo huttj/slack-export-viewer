@@ -20,7 +20,7 @@ export default class Message extends Component {
   }
 
   componentDidMount() {
-    if (Store.isSelectedMessage(this.props.message)) {
+    if (Store.isSelectedMessage(this.props.message) || Store.isGoToMessage(this.props.message)) {
       setTimeout(() => {
         console.log('Scrolling to message');
         this.refs.self && this.refs.self.scrollIntoView()
@@ -29,7 +29,7 @@ export default class Message extends Component {
   }
 
   componentDidUpdate() {
-    if (Store.isSelectedMessage(this.props.message)) {
+    if (Store.isSelectedMessage(this.props.message) || Store.isGoToMessage(this.props.message)) {
       setTimeout(() => {
         console.log('Scrolling to message');
         this.refs.self && this.refs.self.scrollIntoView()

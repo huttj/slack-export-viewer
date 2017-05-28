@@ -73,7 +73,7 @@ export default class Main extends Component {
 
 class Channel extends Component {
 
-  loadMore(e) {
+  loadMore(e, page) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -81,9 +81,9 @@ class Channel extends Component {
 
     switch (channel.type) {
       case 'user':
-        return Store.loadUser(channel, true);
+        return Store.loadUser(channel, page);
       case 'channel':
-        return Store.loadChannel(channel, true);
+        return Store.loadChannel(channel, page);
       case 'search':
         return Store.search(channel.channel);
       default:
@@ -123,14 +123,26 @@ class Channel extends Component {
       );
     }
 
+    let loadPrev;
+    if (Store.hasPrev(channel)) {
+      const remaining = channel.count - messages.length;
+      const postfix = remaining === 1 ? '' : 's';
+      const loadMoreText = channel.type === 'search' ? `View ${remaining} more result${postfix} in ${channel.channel}` : `Load more (${commas(remaining)} remaining)`;
+      loadPrev = (
+        <p style={{ marginTop: 0, marginBottom: 20, textAlign: 'center' }}>
+          <a href={'#'+channel.name} onClick={e=>this.loadMore(e, 'prev')}>{loadMoreText}</a>
+        </p>
+      );
+    }
+
     let loadMore;
-    if (messages.length < channel.count) {
+    if (Store.hasNext(channel)) {
       const remaining = channel.count - messages.length;
       const postfix = remaining === 1 ? '' : 's';
       const loadMoreText = channel.type === 'search' ? `View ${remaining} more result${postfix} in ${channel.channel}` : `Load more (${commas(remaining)} remaining)`;
       loadMore = (
         <p style={{ marginTop: 20, marginBottom: 0, textAlign: 'center' }}>
-          <a href={'#'+channel.name} onClick={e=>this.loadMore(e)}>{loadMoreText}</a>
+          <a href={'#'+channel.name} onClick={e=>this.loadMore(e, 'next')}>{loadMoreText}</a>
         </p>
       );
     }
@@ -145,6 +157,7 @@ class Channel extends Component {
         }}>{channel.name || channel.channel}</h1>
         { purpose }
         <p style={{margin: 12, marginTop: 4, marginBottom: 12, color: colors.textLight, fontSize: 12}}>{count}</p>
+        { loadPrev }
         { messages.map((msg, i) => <Message channel={ msg.channel || channel.name || channel.channel} message={msg} i={i}/>) }
         { loadMore }
       </div>
