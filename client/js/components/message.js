@@ -18,8 +18,6 @@ export default class Message extends Component {
 
   select() {
     Store.selectedMessage = this.props.message;
-    console.log('selecting channel', this.props.message.channel || this.props.channel);
-    console.log('selecting message', this.props.message);
     Store.loadMessage(this.props.channel, this.props.message);
   }
 
@@ -34,7 +32,6 @@ export default class Message extends Component {
   componentDidMount() {
     if (Store.isSelectedMessage(this.props.message) || Store.isGoToMessage(this.props.message)) {
       setTimeout(() => {
-        console.log('Scrolling to message');
         this.refs.self && this.refs.self.scrollIntoView()
       });
     }
@@ -43,7 +40,6 @@ export default class Message extends Component {
   componentDidUpdate() {
     if (Store.isSelectedMessage(this.props.message) || Store.isGoToMessage(this.props.message)) {
       setTimeout(() => {
-        console.log('Scrolling to message');
         this.refs.self && this.refs.self.scrollIntoView()
       });
     }
@@ -88,7 +84,7 @@ export default class Message extends Component {
       attache = attachments.reduce((list, { image_url }) => {
 
         if (image_url) {
-          list.push(<img onClick={e=>this.toggleImage(e, image_url)} style={{ marginTop: 6, maxWidth: this.state[image_url] ? '100%' : '25%' }} src={image_url} alt={image_url} />);
+          list.push(<img key={image_url} onClick={e=>this.toggleImage(e, image_url)} style={{ marginTop: 6, maxWidth: this.state[image_url] ? '100%' : '25%' }} src={image_url} alt={image_url} />);
         }
 
         return list;
@@ -135,6 +131,8 @@ function messageText(text = '') {
 
   const result = [];
 
+  let i = 0;
+
   return text
     .replace(/<([^>]+)>|(\*[^*]+\*)|(_[^_]+_)|\n|(```[^`]+```)/g, function (match, capture) {
 
@@ -144,37 +142,35 @@ function messageText(text = '') {
         case '@':
           const username = str.slice(1).split('|')[0];
           const user = Store.findUser(username);
-          result.push(<a href={'#' + user.name} onClick={e => {
+          result.push(<a key={i++} href={'#' + user.name} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             Store.loadUser(user);
           }}>{highlight('@' + user.name)}</a>);
           break;
         case '_':
-          result.push(<em>{highlight(str.slice(1, -1))}</em>);
+          result.push(<em key={i++}>{highlight(str.slice(1, -1))}</em>);
           break;
         case '*':
-          result.push(<em>{highlight(str.slice(1, -1))}</em>);
+          result.push(<em key={i++}>{highlight(str.slice(1, -1))}</em>);
           break;
         case '\n':
-          result.push(<br/>);
+          result.push(<br key={i++} />);
           break;
         case '`':
-          result.push(<pre style={{width: '100%', overflow: 'auto'}}>{highlight(str.slice(3, -3))}</pre>);
+          result.push(<pre key={i++} style={{width: '100%', overflow: 'auto'}}>{highlight(str.slice(3, -3))}</pre>);
           break;
 
         case '#':
           const channel = Store.findChannel(str.slice(1).split('|')[0]);
 
           if (!channel) {
-            result.push(<span style={{ color: colors.textLight }}>[deleted]</span>);
+            result.push(<span key={i++} style={{ color: colors.textLight }}>[deleted]</span>);
             break;
           }
-          result.push(<a href={str} onClick={e => {
+          result.push(<a key={i++} href={str} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
-
-            console.log(str, channel);
 
             Store.loadChannel(channel);
           }}>{highlight('#' + channel.name)}</a>);
@@ -189,7 +185,7 @@ function messageText(text = '') {
             const chn = Store.findChannel(channelName);
             const realChannelName = chn ? chn.name : channelName;
 
-            result.push(<a href={'#' + str} onClick={e => {
+            result.push(<a key={i++} href={'#' + str} onClick={e => {
               e.preventDefault();
               e.stopPropagation();
               Store.selectedMessage = { user: undefined, ts: ts/1000000 };
@@ -200,7 +196,7 @@ function messageText(text = '') {
 
         default:
           const [link, name] = str.split('|');
-          result.push(<a href={link} target="_blank" rel="noopener"
+          result.push(<a key={i++} href={link} target="_blank" rel="noopener"
                          onClick={e => e.stopPropagation()}>{highlight(name || link)}</a>);
       }
 
@@ -217,6 +213,7 @@ function highlight(text) {
   const REPLACEMENT = '~~~REPLACEMENT~~~';
   const result = [];
 
+  let i = 9000;
 
   let parsed = text
     .replace(/&(\w+);/g, function (match, capture) {
@@ -234,7 +231,7 @@ function highlight(text) {
 
   if (Store.searchTerm) {
     parsed = parsed.replace(new RegExp(Store.searchTerm, 'gi'), function (match, capture) {
-      result.push(<span style={{backgroundColor: colors.accent}}>{match}</span>);
+      result.push(<span key={i++} style={{backgroundColor: colors.accent}}>{match}</span>);
       return REPLACEMENT;
     })
   }

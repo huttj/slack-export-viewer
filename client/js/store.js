@@ -93,8 +93,6 @@ class Store {
 
     this.selectedMessage = selectedMessage;
 
-    console.log('messages', messages);
-
     channel.type = 'channel';
     channel.messages = messages;
     channel.page = (messages.length / 50) | 0;
@@ -142,8 +140,6 @@ class Store {
 
   async loadUser(user, page) {
     if (!user) return this.display = this.display;
-
-    console.log(user);
 
     if (!user.messages || !page) {
       const messages = await this.fetch('./users/' + user.id);
