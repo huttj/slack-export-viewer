@@ -42,7 +42,7 @@ export default class Message extends Component {
   render() {
 
     const {i} = this.props;
-    const { user, text, ts, username, icons } = this.props.message;
+    const { user, text, ts, username, icons, channel } = this.props.message;
 
     const User = Store.findUser(user);
 
@@ -63,6 +63,11 @@ export default class Message extends Component {
       backgroundColor = colors.accent;
     }
 
+    let channelName = null;
+    if (channel && this.props.type === 'user') {
+      channelName = <span> in <a href={'#' + channel} onClick={e => this.select(e)}>{channel}</a></span>
+    }
+
     return (
       <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self" key={ user + ':' + text + ':' + ts }>
         <div style={{display: 'flex', flexDirection: 'row'}}>
@@ -76,7 +81,7 @@ export default class Message extends Component {
             borderRadius: 100
           }} src={iconSrc} alt="" onClick={e => this.selectUser(e, User)}/>
           <div style={{flex: 1}}>
-            <p style={{margin: 2, fontWeight: 'bold'}} onClick={e => this.selectUser(e, User)}>{name}</p>
+            <p style={{margin: 2, }}><strong onClick={e => this.selectUser(e, User)}>{name}</strong>{channelName}</p>
             <p style={{margin: 2, fontSize: 14, color: colors.textLight}}> {new Date(ts * 1000).toLocaleString()}</p>
             <div style={{
               margin: 2,

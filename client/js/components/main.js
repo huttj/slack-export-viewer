@@ -158,7 +158,7 @@ class Channel extends Component {
         { purpose }
         <p style={{margin: 12, marginTop: 4, marginBottom: 12, color: colors.textLight, fontSize: 12}}>{count}</p>
         { loadPrev }
-        { messages.map((msg, i) => <Message channel={ msg.channel || channel.name || channel.channel} message={msg} i={i}/>) }
+        { messages.map((msg, i) => <Message type={channel.type} channel={ msg.channel || channel.name || channel.channel} message={msg} i={i}/>) }
         { loadMore }
       </div>
     );
