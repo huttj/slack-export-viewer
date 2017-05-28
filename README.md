@@ -34,18 +34,6 @@ There is no database or indexing; it merely loads and filters the JSON in memory
 
 Perhaps in the longer term, a database that supports full-text search could be added. 
 
-#### Pagination
-
-There is no pagination, so each query loads all of the available results. Pagination would load the first page of 
-results and offer a token or use query params for retrieving subsequent pages. The client could then request the next
-pages through an infinite scrolling mechanism.
-
-#### Get Message with Context
-
-Similar to the indexing issue, selecting a message loads the entire channel for that message, before scrolling to the
-message. It would be much better to load a subset of messages around a selected message, and send that to the client.
-Infinite scrolling could then load the later messages, as well.
-
 #### Client-side Routing
 
 It would be nice for each event to generate a history stack and appropriate hash change, so that states could be linked
