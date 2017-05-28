@@ -128,6 +128,10 @@ function messageText(text = '') {
           break;
         case '#':
           const channel = Store.findChannel(str.slice(1).split('|')[0]);
+          if (!channel) {
+            result.push(<span style={{ color: colors.textLight }}>[deleted]</span>);
+            break;
+          }
           result.push(<a href={str} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
