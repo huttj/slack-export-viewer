@@ -73,6 +73,10 @@ class Store {
     return this.channels.find(channel => channel.id === id);
   }
 
+  findChannelByName(name) {
+    return this.channels.find(channel => channel.name === name);
+  }
+
   findUser(id) {
     return this.usersById[id];
   }
@@ -85,7 +89,11 @@ class Store {
 
   async loadMessage(channelName, {user, ts}) {
     const channel = this.channels.find(channel => channel.name === channelName);
-    const messages = await this.fetch('./channels/' + channelName + '?after=true&before=true&user=' + user + '&ts=' + ts);
+    const { selectedMessage, messages } = await this.fetch('./channels/' + channelName + '?after=true&before=true&user=' + user + '&ts=' + ts);
+
+    this.selectedMessage = selectedMessage;
+
+    console.log('messages', messages);
 
     channel.type = 'channel';
     channel.messages = messages;
@@ -99,7 +107,7 @@ class Store {
     if (!channel) return this.display = this.display;
 
     if (!channel.messages || !page) {
-      const messages = await this.fetch('./channels/' + channel.name);
+      const { messages } = await this.fetch('./channels/' + channel.name);
       channel.type = 'channel';
       channel.messages = messages;
       channel.page = 1;
@@ -171,7 +179,9 @@ class Store {
   }
 
   isSelectedMessage(message) {
-    return this.selectedMessage && this.selectedMessage.user === message.user && this.selectedMessage.ts === message.ts;
+    return (
+      this.selectedMessage && this.selectedMessage.user === message.user && this.selectedMessage.ts === message.ts
+    );
   }
 
   isGoToMessage(message) {

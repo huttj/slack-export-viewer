@@ -133,8 +133,10 @@ function messageText(text = '') {
         case '`':
           result.push(<pre style={{width: '100%', overflow: 'auto'}}>{highlight(str.slice(3, -3))}</pre>);
           break;
+
         case '#':
           const channel = Store.findChannel(str.slice(1).split('|')[0]);
+
           if (!channel) {
             result.push(<span style={{ color: colors.textLight }}>[deleted]</span>);
             break;
@@ -142,9 +144,31 @@ function messageText(text = '') {
           result.push(<a href={str} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
+
+            console.log(str, channel);
+
             Store.loadChannel(channel);
           }}>{highlight('#' + channel.name)}</a>);
           break;
+
+        case 'h':
+
+          const match = str.match(/https\:\/\/[^.]+\.slack\.com\/archives\/([^/]+)\/p(\d+)/);
+
+          if (match) {
+            const [_, channelName, ts] = match;
+            const chn = Store.findChannel(channelName);
+            const realChannelName = chn ? chn.name : channelName;
+
+            result.push(<a href={'#' + str} onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              Store.selectedMessage = { user: undefined, ts: ts/1000000 };
+              Store.loadMessage(realChannelName, Store.selectedMessage);
+            }}>{highlight('#' + realChannelName)}</a>);
+            break;
+          }
+
         default:
           const [link, name] = str.split('|');
           result.push(<a href={link} target="_blank" rel="noopener"
