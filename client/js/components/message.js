@@ -6,6 +6,16 @@ import Store from '../store';
 @observer
 export default class Message extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  toggleImage(e, url) {
+    e.stopPropagation();
+    this.setState({ [url]: !this.state[url] });
+  }
+
   select() {
     Store.selectedMessage = this.props.message;
     console.log('selecting channel', this.props.message.channel || this.props.channel);
@@ -42,7 +52,7 @@ export default class Message extends Component {
   render() {
 
     const {i} = this.props;
-    const { user, text, ts, username, icons, channel, file } = this.props.message;
+    const { user, text, ts, username, icons, channel, file, attachments } = this.props.message;
 
     const User = Store.findUser(user);
 
@@ -70,7 +80,19 @@ export default class Message extends Component {
 
     let image = null;
     if (file && file.mimetype.match('image')) {
-      image = <img style={{ marginTop: 6, maxWidth: '100%' }} src={file.url_private} alt={file.title || file.name} />
+      image = <img onClick={e=>this.toggleImage(e, file.url_private)} style={{ marginTop: 6, maxWidth: this.state[file.url_private] ? '100%' : '25%' }} src={file.url_private} alt={file.title || file.name} />
+    }
+
+    let attache;
+    if (attachments) {
+      attache = attachments.reduce((list, { image_url }) => {
+
+        if (image_url) {
+          list.push(<img onClick={e=>this.toggleImage(e, image_url)} style={{ marginTop: 6, maxWidth: this.state[image_url] ? '100%' : '25%' }} src={image_url} alt={image_url} />);
+        }
+
+        return list;
+      }, []);
     }
 
     return (
@@ -98,6 +120,7 @@ export default class Message extends Component {
               {messageText(text)}
             </div>
             {image}
+            {attache}
           </div>
         </div>
 
