@@ -1,4 +1,4 @@
-import { observable, computed } from 'mobx';
+import {observable, computed} from 'mobx';
 
 class Store {
 
@@ -73,12 +73,7 @@ class Store {
   }
 
   findUser(id) {
-    return this.usersById[id] || {
-        name: 'unknown', profile: {
-          image_24: 'http://speedsf.com/instructors/default_profile.jpg',
-          image_32: 'http://speedsf.com/instructors/default_profile.jpg',
-        }
-      };
+    return this.usersById[id];
   }
 
   async selectChannel(channelName) {
@@ -87,7 +82,7 @@ class Store {
     this.loadChannel(channel);
   }
 
-  async loadMessage(channelName, { user, ts }) {
+  async loadMessage(channelName, {user, ts}) {
     const channel = this.channels.find(channel => channel.name === channelName);
     const messages = await this.fetch('./channels/' + channelName + '?user=' + user + '&ts=' + ts);
 
@@ -123,12 +118,12 @@ class Store {
   }
 
   // async loadUser(user) {
-    // if (!user.messages) {
-    //   const messages = await this.fetch('./users/' + user.id);
-      // user.messages = messages;
-    // }
-    // console.log('GOT MESSAGES', user.messages);
-    // this.display = [{ name: user.name, messages, real_name: user.real_name, count: messages.length }];
+  // if (!user.messages) {
+  //   const messages = await this.fetch('./users/' + user.id);
+  // user.messages = messages;
+  // }
+  // console.log('GOT MESSAGES', user.messages);
+  // this.display = [{ name: user.name, messages, real_name: user.real_name, count: messages.length }];
   // }
 
   async loadUser(user, nextPage) {

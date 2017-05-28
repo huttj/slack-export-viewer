@@ -109,7 +109,8 @@ async function getChannel(req, res, next) {
 
   if (user && ts) {
 
-    const i = channelMessages.findIndex(m => m.ts === ts && m.user === user);
+
+    const i = channelMessages.findIndex(m => m.ts === ts && (user === 'undefined' || m.user === user));
 
     const topOff = Math.ceil((i + 1) / PAGE_SIZE) * PAGE_SIZE;
 

@@ -12,8 +12,10 @@ export default class Message extends Component {
   }
 
   selectUser(e, user) {
-    Store.selectedMessage = this.props.message;
-    Store.loadUser(user);
+    if (user) {
+      Store.selectedMessage = this.props.message;
+      Store.loadUser(user);
+    }
     e.stopPropagation();
   }
 
@@ -38,10 +40,20 @@ export default class Message extends Component {
   render() {
 
     const {i} = this.props;
-    const {user, text, ts} = this.props.message;
-
+    const { user, text, ts, username, icons } = this.props.message;
 
     const User = Store.findUser(user);
+
+    let iconSrc;
+    let name;
+
+    if (User) {
+      name = User.name;
+      iconSrc = User.profile.image_32;
+    } else {
+      name = username;
+      iconSrc = icons ? icons.image_48 : 'http://speedsf.com/instructors/default_profile.jpg';
+    }
 
     let backgroundColor = i % 2 === 0 ? colors.primarySuperLight : colors.icon;
 
@@ -50,7 +62,7 @@ export default class Message extends Component {
     }
 
     return (
-      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select(User)} ref="self" key={ user + ':' + text + ':' + ts }>
+      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self" key={ user + ':' + text + ':' + ts }>
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <img style={{
             flex: '0 0 32',
@@ -60,9 +72,9 @@ export default class Message extends Component {
             marginRight: 6,
             marginLeft: 2,
             borderRadius: 100
-          }} src={User.profile.image_32} alt="" onClick={e => this.selectUser(e, User)}/>
+          }} src={iconSrc} alt="" onClick={e => this.selectUser(e, User)}/>
           <div style={{flex: 1}}>
-            <p style={{margin: 2, fontWeight: 'bold'}} onClick={e => this.selectUser(e, User)}>{User.name}</p>
+            <p style={{margin: 2, fontWeight: 'bold'}} onClick={e => this.selectUser(e, User)}>{name}</p>
             <p style={{margin: 2, fontSize: 14, color: colors.textLight}}> {new Date(ts * 1000).toLocaleString()}</p>
             <div style={{
               margin: 2,
