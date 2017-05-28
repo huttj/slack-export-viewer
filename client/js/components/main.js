@@ -40,9 +40,37 @@ function renderChannel(channel) {
   const postfix = messages.length === 1 ? '' : 's';
   const count = commas(messages.length) + ' message' + postfix;
 
+  console.log(channel);
+
+  let purpose = null;
+  if (channel.purpose && channel.purpose.value) {
+    purpose = (
+      <p style={{  margin: 12, marginTop:    4, marginBottom: 6, color: colors.textLight, fontSize: 16 }}>
+        {channel.purpose.value}
+      </p>
+    );
+  }
+
+  if (!purpose && channel.topic && channel.topic.value) {
+    purpose = (
+      <p style={{  margin: 12, marginTop:    4, marginBottom: 6, color: colors.textLight, fontSize: 16 }}>
+        {channel.topic.value}
+      </p>
+    );
+  }
+
+  if (!purpose && channel.real_name) {
+    purpose = (
+      <p style={{  margin: 12, marginTop:    4, marginBottom: 6, color: colors.textLight, fontSize: 16 }}>
+        {channel.real_name}
+      </p>
+    );
+  }
+
   return (
     <div style={{ width: '100%', overflowX: 'hidden' }}>
       <h1 style={{ margin: 12, marginBottom: 4, color: colors.primaryDark, fontWeight: '100' }}>{channel.name || channel.channel}</h1>
+      { purpose }
       <p style={{  margin: 12, marginTop:    4, marginBottom: 12, color: colors.textLight, fontSize: 12 }}>{count}</p>
       { messages.map((msg, i) => <Message channel={ msg.channel || channel.name || channel.channel} message={msg} i={i} />) }
     </div>

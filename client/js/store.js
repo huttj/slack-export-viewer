@@ -99,7 +99,7 @@ class Store {
       // user.messages = messages;
     // }
     // console.log('GOT MESSAGES', user.messages);
-    this.display = [{ name: user.name, messages }];
+    this.display = [{ name: user.name, messages, real_name: user.real_name }];
   }
 
   isSelected(channel) {
