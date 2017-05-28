@@ -28,7 +28,7 @@ express()
 
 
 const BACKUP_PATH = path.resolve(__dirname + '/../slack_backup');
-
+const PAGE_SIZE = 50;
 
 function catcher(handler) {
   return (req, res, next) => {
@@ -60,9 +60,7 @@ async function listUsers(req, res, next) {
       for (const message of messages) {
         try {
           usersById[message.user].count++;
-        } catch (e) {
-          console.log(message.user);
-        }
+        } catch (e) {}
       }
     }));
   }
@@ -86,6 +84,7 @@ async function listChannels(req, res, next) {
 }
 
 async function getMessages(channel) {
+
   const channelPath = BACKUP_PATH + '/' + channel;
 
   const files = await readDir(channelPath);
@@ -97,19 +96,17 @@ async function getMessages(channel) {
 
 async function getChannel(req, res, next) {
 
-  const channelPath = BACKUP_PATH + '/' + req.params.channel;
+  const { channel } = req.params;
+  const { page=1 } = req.query;
 
-  const files = await readDir(channelPath);
+  const start = (page - 1) * PAGE_SIZE;
+  const end   = start + PAGE_SIZE;
 
-  const contents = await Promise.all(files.map(file => {
+  const messages = (await getMessages(channel, page)).slice(start, end);
 
-    const messages = require(channelPath + '/' + file);
-    messages.forEach(m => m.text = slackToEmoji(m.text));
-    return messages;
+  messages.forEach(m => m.text = slackToEmoji(m.text));
 
-  }));
-
-  res.send([].concat(...contents));
+  res.send(messages);
 
 }
 
@@ -117,23 +114,48 @@ async function search(req, res, next) {
   const channels = require(BACKUP_PATH + '/channels.json');
 
   const {term} = req.params;
+  const {channel} = req.query;
+
   const re = new RegExp(term,'i');
+
+  const start = 0;
+  const end   = (start + PAGE_SIZE / 10) | 0;
 
   const results = [];
 
-  for (const channel of channels) {
-    const messages = await getMessages(channel.name);
+  if (channel) {
 
-    const filtered = messages.filter(message => {
+    const channelMessages = await getMessages(channel);
+
+    const filtered = channelMessages.filter(message => {
       const isMatch = message.text.match(re);
       if (isMatch) message.text = slackToEmoji(message.text);
       return isMatch;
     });
 
     if (filtered.length) {
-      results.push({ channel: channel.name, messages: filtered.sort((a,b) => a.ts - b.ts) });
+      const messages = filtered.sort((a,b) => a.ts - b.ts);
+      results.push({ channel, messages, count: filtered.length });
     }
-    // if (results.length > 50) break;
+
+  } else {
+
+    for (const channel of channels) {
+      const channelMessages = await getMessages(channel.name);
+
+      const filtered = channelMessages.filter(message => {
+        const isMatch = message.text.match(re);
+        if (isMatch) message.text = slackToEmoji(message.text);
+        return isMatch;
+      });
+
+
+      if (filtered.length) {
+        const messages = filtered.sort((a,b) => a.ts - b.ts).slice(start, end);
+        console.log(start, end, messages.length, filtered.length, channel.name);
+        results.push({ channel: channel.name, messages, count: filtered.length });
+      }
+    }
   }
 
   res.send(results);
@@ -143,6 +165,10 @@ async function getUser(req, res, next) {
   const channels = require(BACKUP_PATH + '/channels.json');
 
   const {id} = req.params;
+  const { page=1 } = req.query;
+
+  const start = ((page - 1) * PAGE_SIZE / 10) | 0;
+  const end   = (start + PAGE_SIZE / 10) | 0;
 
   const results = [];
 
@@ -156,7 +182,8 @@ async function getUser(req, res, next) {
 
       if (isMatch) message.text = slackToEmoji(message.text);
       return isMatch;
-    });
+
+    }).slice(start, end);
 
     if (filtered.length) {
       results.push(...filtered);

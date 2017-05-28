@@ -13,9 +13,9 @@ export default class Message extends Component {
     };
   }
 
-  componentDidMount() {
-    this.parseMessage();
-  }
+  // componentDidMount() {
+  //   this.parseMessage();
+  // }
 
   componentWillReceiveProps(newProps) {
     if (newProps.message !== this.props.message || !this.props.message) {
@@ -44,9 +44,6 @@ export default class Message extends Component {
 
     if (Store.isSelectedMessage(this.props.message)) {
       setTimeout(() => this.refs.self && this.refs.self.scrollIntoView());
-      // try {
-      //   this.refs.self.scrollIntoView();
-      // } catch (e) {}
     }
 
     const {i} = this.props;
@@ -63,8 +60,7 @@ export default class Message extends Component {
     }
 
     return (
-      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self"
-           key={this.state.text}>
+      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self" key={ user + ':' + text }>
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <img style={{
             flex: '0 0 32',
@@ -85,8 +81,8 @@ export default class Message extends Component {
               lineHeight: 1.33,
               color: colors.text
             }}>
-              {this.state.text}
-              {/*{content}*/}
+              {/*{this.state.text}*/}
+              {messageText(text)}
             </div>
           </div>
         </div>

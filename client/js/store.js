@@ -9,6 +9,7 @@ class Store {
   @observable users = [];
   @observable usersById = {};
 
+  @observable scrollPos = 0;
   @observable isLoading = false;
 
   constructor() {
@@ -39,9 +40,12 @@ class Store {
     }
   }
 
-  async search() {
+  async search(channelName) {
     if (!this.searchTerm) return;
-    this.display = await this.fetch('/search/' + this.searchTerm);
+    const channels = await this.fetch('/search/' + this.searchTerm + (channelName ? '?channel=' + channelName : ''));
+    channels.forEach(c => c.type = 'search');
+    this.scrollPos = 0;
+    this.display = channels;
   }
 
   async loadChannels() {
@@ -82,25 +86,58 @@ class Store {
     this.loadChannel(channel);
   }
 
-  async loadChannel(channel) {
+  async loadChannel(channel, nextPage) {
     if (!channel) return this.display = this.display;
 
-    if (!channel.messages) {
+    console.log(channel);
+
+    if (!channel.messages || !nextPage) {
       const messages = await this.fetch('./channels/' + channel.name);
+      channel.type = 'channel';
       channel.messages = messages;
+      channel.page = 1;
+      this.scrollPos = 0;
+
+    } else if (nextPage) {
+      channel.page++;
+      const messages = await this.fetch('./channels/' + channel.name + '?page=' + channel.page);
+      channel.messages.push(...messages);
     }
 
     this.display = [channel];
   }
 
-  async loadUser(user) {
+  // async loadUser(user) {
     // if (!user.messages) {
-      const messages = await this.fetch('./users/' + user.id);
+    //   const messages = await this.fetch('./users/' + user.id);
       // user.messages = messages;
     // }
     // console.log('GOT MESSAGES', user.messages);
-    this.display = [{ name: user.name, messages, real_name: user.real_name }];
+    // this.display = [{ name: user.name, messages, real_name: user.real_name, count: messages.length }];
+  // }
+
+  async loadUser(user, nextPage) {
+    if (!user) return this.display = this.display;
+
+    console.log(user);
+
+    if (!user.messages || !nextPage) {
+      const messages = await this.fetch('./users/' + user.id);
+      user.messages = messages;
+      user.page = 1;
+      user.type = 'user';
+      this.scrollPos = 0;
+
+    } else if (nextPage) {
+      user.page++;
+      const messages = await this.fetch('./users/' + user.id + '?page=' + user.page);
+      user.messages.push(...messages);
+
+    }
+
+    this.display = [user];
   }
+
 
   isSelected(channel) {
     return this.display && this.display.length === 1 && this.display[0].name === channel.name;
