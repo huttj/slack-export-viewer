@@ -87,6 +87,18 @@ class Store {
     this.loadChannel(channel);
   }
 
+  async loadMessage(channelName, { user, ts }) {
+    const channel = this.channels.find(channel => channel.name === channelName);
+    const messages = await this.fetch('./channels/' + channelName + '?user=' + user + '&ts=' + ts);
+
+    channel.type = 'channel';
+    channel.messages = messages;
+    channel.page = (messages.length / 50) | 0;
+
+    this.scrollPos = 0;
+    this.display = [channel];
+  }
+
   async loadChannel(channel, nextPage) {
     if (!channel) return this.display = this.display;
 

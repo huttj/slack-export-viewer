@@ -12,14 +12,10 @@ import commas from '../util/commas';
 export default class Main extends Component {
 
   componentDidUpdate() {
-    console.log(this.refs.container, Store.display, Store.display.length === 1, Store.scrollPos);
 
     const canScroll = this.refs.container && Store.display && Store.display.length === 1;
 
-    console.log('canScroll', canScroll);
-
     if (canScroll) {
-      console.log('scrolling to', Store.scrollPos);
       this.refs.container.scrollTop = Store.scrollPos;
     }
   }

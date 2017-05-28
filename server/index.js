@@ -29,6 +29,7 @@ express()
 
 const BACKUP_PATH = path.resolve(__dirname + '/../slack_backup');
 const PAGE_SIZE = 50;
+const HALF_PAGE_SIZE = 25;
 
 function catcher(handler) {
   return (req, res, next) => {
@@ -97,12 +98,26 @@ async function getMessages(channel) {
 async function getChannel(req, res, next) {
 
   const { channel } = req.params;
-  const { page=1 } = req.query;
+  const { page=1, user, ts } = req.query;
 
   const start = (page - 1) * PAGE_SIZE;
   const end   = start + PAGE_SIZE;
 
-  const messages = (await getMessages(channel, page)).slice(start, end);
+  let messages = [];
+
+  const channelMessages = await getMessages(channel);
+
+  if (user && ts) {
+
+    const i = channelMessages.findIndex(m => m.ts === ts && m.user === user);
+
+    const topOff = Math.ceil((i + 1) / PAGE_SIZE) * PAGE_SIZE;
+
+    if (i > -1) messages = channelMessages.slice(Math.max(0, topOff - PAGE_SIZE), topOff);
+
+  } else {
+    messages = channelMessages.slice(start, end);
+  }
 
   messages.forEach(m => m.text = slackToEmoji(m.text));
 

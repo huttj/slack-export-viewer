@@ -6,32 +6,9 @@ import Store from '../store';
 @observer
 export default class Message extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: this.props.message.text
-    };
-  }
-
-  // componentDidMount() {
-  //   this.parseMessage();
-  // }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.message !== this.props.message || !this.props.message) {
-      this.parseMessage();
-    }
-  }
-
-  parseMessage() {
-    setTimeout(() => {
-      this.setState({text: messageText(this.props.message.text)})
-    }, 1);
-  }
-
   select() {
     Store.selectedMessage = this.props.message;
-    Store.selectChannel(this.props.channel);
+    Store.loadMessage(this.props.channel, this.props.message);
   }
 
   selectUser(e, user) {
@@ -40,11 +17,25 @@ export default class Message extends Component {
     e.stopPropagation();
   }
 
-  render() {
-
+  componentDidMount() {
     if (Store.isSelectedMessage(this.props.message)) {
-      setTimeout(() => this.refs.self && this.refs.self.scrollIntoView());
+      setTimeout(() => {
+        console.log('Scrolling to message');
+        this.refs.self && this.refs.self.scrollIntoView()
+      });
     }
+  }
+
+  componentDidUpdate() {
+    if (Store.isSelectedMessage(this.props.message)) {
+      setTimeout(() => {
+        console.log('Scrolling to message');
+        this.refs.self && this.refs.self.scrollIntoView()
+      });
+    }
+  }
+
+  render() {
 
     const {i} = this.props;
     const {user, text, ts} = this.props.message;
@@ -55,12 +46,11 @@ export default class Message extends Component {
     let backgroundColor = i % 2 === 0 ? colors.primarySuperLight : colors.icon;
 
     if (Store.isSelectedMessage(this.props.message)) {
-
       backgroundColor = colors.accent;
     }
 
     return (
-      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self" key={ user + ':' + text + ':' + ts }>
+      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select(User)} ref="self" key={ user + ':' + text + ':' + ts }>
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <img style={{
             flex: '0 0 32',
@@ -81,7 +71,6 @@ export default class Message extends Component {
               lineHeight: 1.33,
               color: colors.text
             }}>
-              {/*{this.state.text}*/}
               {messageText(text)}
             </div>
           </div>
