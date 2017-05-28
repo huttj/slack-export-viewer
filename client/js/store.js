@@ -119,7 +119,7 @@ class Store {
 
       const { user, ts } = channel.messages[channel.messages.length-1];
 
-      const messages = await this.fetch('./channels/' + channel.name + '?after=true&user=' + user + '&ts=' + ts);
+      const { messages } = await this.fetch('./channels/' + channel.name + '?after=true&user=' + user + '&ts=' + ts);
       channel.messages.push(...messages.slice(1));
 
     } else if (page === 'prev') {
@@ -129,7 +129,7 @@ class Store {
 
       const { user, ts } = channel.messages[0];
 
-      const messages = await this.fetch('./channels/' + channel.name + '?before=true&user=' + user + '&ts=' + ts);
+      const { messages } = await this.fetch('./channels/' + channel.name + '?before=true&user=' + user + '&ts=' + ts);
       channel.messages.unshift(...messages.slice(0,-1));
 
     } else {
