@@ -26,6 +26,13 @@ interface for consuming the API.
 
 ## Future Improvements
 
+#### Standardize API
+
+I created the initial API based on what I thought I needed on the client side, and I added to it as I built the app. As
+a result, the responses are inconsistent, and where the app gets some data (like message counts) is quite unreliable and
+messy. It would be best to standardize the API so that it would return the messages in question, metadata like counts
+and next and previous messages, and so on.
+
 #### Leverage Proper Indexes
 
 There is no database or indexing; it merely loads and filters the JSON in memory. This could be ameliorated by either:
@@ -33,18 +40,6 @@ There is no database or indexing; it merely loads and filters the JSON in memory
 - Using an in-memory index.
 
 Perhaps in the longer term, a database that supports full-text search could be added. 
-
-#### Pagination
-
-There is no pagination, so each query loads all of the available results. Pagination would load the first page of 
-results and offer a token or use query params for retrieving subsequent pages. The client could then request the next
-pages through an infinite scrolling mechanism.
-
-#### Get Message with Context
-
-Similar to the indexing issue, selecting a message loads the entire channel for that message, before scrolling to the
-message. It would be much better to load a subset of messages around a selected message, and send that to the client.
-Infinite scrolling could then load the later messages, as well.
 
 #### Client-side Routing
 

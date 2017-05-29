@@ -9,9 +9,9 @@ import commas from '../util/commas'
 export default class SideMenu extends Component {
   render() {
 
-    const channels = Store.channels.map(channel => <ChannelItem channel={channel}/>);
+    const channels = Store.channels.map(channel => <ChannelItem channel={channel} key={channel.name} />);
 
-    const users = Store.users.map(user => <UserItem user={user}/>);
+    const users = Store.users.map(user => <UserItem user={user} key={user.name}/>);
 
 
     return (
@@ -55,8 +55,8 @@ class ChannelItem extends Component {
       <a
         href={'#' + channel.name}
         style={{textDecoration: 'none'}}
-        key={channel.id}
         onClick={() => {
+          Store.scrollPos = 0;
           Store.selectedMessage = null;
           Store.loadChannel(channel);
         }}
@@ -98,7 +98,6 @@ class UserItem extends Component {
       <a
         href={'#' + user.name}
         style={{textDecoration: 'none'}}
-        key={user.name}
         onClick={() => {
           Store.selectedMessage = null;
           Store.loadUser(user);

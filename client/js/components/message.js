@@ -8,63 +8,91 @@ export default class Message extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      text: this.props.message.text
-    };
+    this.state = {};
   }
 
-  componentDidMount() {
-    this.parseMessage();
-  }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.message !== this.props.message || !this.props.message) {
-      this.parseMessage();
-    }
-  }
-
-  parseMessage() {
-    setTimeout(() => {
-      this.setState({text: messageText(this.props.message.text)})
-    }, 1);
+  toggleImage(e, url) {
+    e.stopPropagation();
+    this.setState({ [url]: !this.state[url] });
   }
 
   select() {
     Store.selectedMessage = this.props.message;
-    Store.selectChannel(this.props.channel);
+    Store.loadMessage(this.props.channel, this.props.message);
   }
 
   selectUser(e, user) {
-    Store.selectedMessage = this.props.message;
-    Store.loadUser(user);
+    if (user) {
+      Store.selectedMessage = this.props.message;
+      Store.loadUser(user);
+    }
     e.stopPropagation();
+  }
+
+  componentDidMount() {
+    if (Store.isSelectedMessage(this.props.message) || Store.isGoToMessage(this.props.message)) {
+      setTimeout(() => {
+        this.refs.self && this.refs.self.scrollIntoView()
+      });
+    }
+  }
+
+  componentDidUpdate() {
+    if (Store.isSelectedMessage(this.props.message) || Store.isGoToMessage(this.props.message)) {
+      setTimeout(() => {
+        this.refs.self && this.refs.self.scrollIntoView()
+      });
+    }
   }
 
   render() {
 
-    if (Store.isSelectedMessage(this.props.message)) {
-      setTimeout(() => this.refs.self && this.refs.self.scrollIntoView());
-      // try {
-      //   this.refs.self.scrollIntoView();
-      // } catch (e) {}
-    }
-
     const {i} = this.props;
-    const {user, text, ts} = this.props.message;
-
+    const { user, text, ts, username, icons, channel, file, attachments } = this.props.message;
 
     const User = Store.findUser(user);
+
+    let iconSrc;
+    let name;
+
+    if (User) {
+      name = User.name;
+      iconSrc = User.profile.image_32;
+    } else {
+      name = username;
+      iconSrc = icons ? icons.image_48 : 'http://speedsf.com/instructors/default_profile.jpg';
+    }
 
     let backgroundColor = i % 2 === 0 ? colors.primarySuperLight : colors.icon;
 
     if (Store.isSelectedMessage(this.props.message)) {
-
       backgroundColor = colors.accent;
     }
 
+    let channelName = null;
+    if (channel && this.props.type === 'user') {
+      channelName = <span> in <a href={'#' + channel} onClick={e => this.select(e)}>{channel}</a></span>
+    }
+
+    let image = null;
+    if (file && file.mimetype.match('image')) {
+      image = <img onClick={e=>this.toggleImage(e, file.url_private)} style={{ marginTop: 6, maxWidth: this.state[file.url_private] ? '100%' : '25%' }} src={file.url_private} alt={file.title || file.name} />
+    }
+
+    let attache;
+    if (attachments) {
+      attache = attachments.reduce((list, { image_url }) => {
+
+        if (image_url) {
+          list.push(<img key={image_url} onClick={e=>this.toggleImage(e, image_url)} style={{ marginTop: 6, maxWidth: this.state[image_url] ? '100%' : '25%' }} src={image_url} alt={image_url} />);
+        }
+
+        return list;
+      }, []);
+    }
+
     return (
-      <div style={{backgroundColor, padding: 8, paddingBottom: 9}} onClick={() => this.select()} ref="self"
-           key={this.state.text}>
+      <div style={{backgroundColor, padding: 8, paddingBottom: 9 }} onClick={() => this.select()} ref="self" key={ user + ':' + text + ':' + ts }>
         <div style={{display: 'flex', flexDirection: 'row'}}>
           <img style={{
             flex: '0 0 32',
@@ -74,9 +102,9 @@ export default class Message extends Component {
             marginRight: 6,
             marginLeft: 2,
             borderRadius: 100
-          }} src={User.profile.image_32} alt="" onClick={e => this.selectUser(e, User)}/>
+          }} src={iconSrc} alt="" onClick={e => this.selectUser(e, User)}/>
           <div style={{flex: 1}}>
-            <p style={{margin: 2, fontWeight: 'bold'}} onClick={e => this.selectUser(e, User)}>{User.name}</p>
+            <p style={{margin: 2, }}><strong onClick={e => this.selectUser(e, User)}>{name}</strong>{channelName}</p>
             <p style={{margin: 2, fontSize: 14, color: colors.textLight}}> {new Date(ts * 1000).toLocaleString()}</p>
             <div style={{
               margin: 2,
@@ -85,9 +113,10 @@ export default class Message extends Component {
               lineHeight: 1.33,
               color: colors.text
             }}>
-              {this.state.text}
-              {/*{content}*/}
+              {messageText(text)}
             </div>
+            {image}
+            {attache}
           </div>
         </div>
 
@@ -102,6 +131,8 @@ function messageText(text = '') {
 
   const result = [];
 
+  let i = 0;
+
   return text
     .replace(/<([^>]+)>|(\*[^*]+\*)|(_[^_]+_)|\n|(```[^`]+```)/g, function (match, capture) {
 
@@ -111,35 +142,61 @@ function messageText(text = '') {
         case '@':
           const username = str.slice(1).split('|')[0];
           const user = Store.findUser(username);
-          result.push(<a href={'#' + user.name} onClick={e => {
+          result.push(<a key={i++} href={'#' + user.name} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             Store.loadUser(user);
           }}>{highlight('@' + user.name)}</a>);
           break;
         case '_':
-          result.push(<em>{highlight(str.slice(1, -1))}</em>);
+          result.push(<em key={i++}>{highlight(str.slice(1, -1))}</em>);
           break;
         case '*':
-          result.push(<em>{highlight(str.slice(1, -1))}</em>);
+          result.push(<em key={i++}>{highlight(str.slice(1, -1))}</em>);
           break;
         case '\n':
-          result.push(<br/>);
+          result.push(<br key={i++} />);
           break;
         case '`':
-          result.push(<pre style={{width: '100%', overflow: 'auto'}}>{highlight(str.slice(3, -3))}</pre>);
+          result.push(<pre key={i++} style={{width: '100%', overflow: 'auto'}}>{highlight(str.slice(3, -3))}</pre>);
           break;
+
         case '#':
           const channel = Store.findChannel(str.slice(1).split('|')[0]);
-          result.push(<a href={str} onClick={e => {
+
+          if (!channel) {
+            result.push(<span key={i++} style={{ color: colors.textLight }}>[deleted]</span>);
+            break;
+          }
+          result.push(<a key={i++} href={str} onClick={e => {
             e.preventDefault();
             e.stopPropagation();
+
             Store.loadChannel(channel);
           }}>{highlight('#' + channel.name)}</a>);
           break;
+
+        case 'h':
+
+          const match = str.match(/https\:\/\/[^.]+\.slack\.com\/archives\/([^/]+)\/p(\d+)/);
+
+          if (match) {
+            const [_, channelName, ts] = match;
+            const chn = Store.findChannel(channelName);
+            const realChannelName = chn ? chn.name : channelName;
+
+            result.push(<a key={i++} href={'#' + str} onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              Store.selectedMessage = { user: undefined, ts: ts/1000000 };
+              Store.loadMessage(realChannelName, Store.selectedMessage);
+            }}>{highlight('#' + realChannelName)}</a>);
+            break;
+          }
+
         default:
           const [link, name] = str.split('|');
-          result.push(<a href={link} target="_blank" rel="noopener"
+          result.push(<a key={i++} href={link} target="_blank" rel="noopener"
                          onClick={e => e.stopPropagation()}>{highlight(name || link)}</a>);
       }
 
@@ -156,6 +213,7 @@ function highlight(text) {
   const REPLACEMENT = '~~~REPLACEMENT~~~';
   const result = [];
 
+  let i = 9000;
 
   let parsed = text
     .replace(/&(\w+);/g, function (match, capture) {
@@ -173,7 +231,7 @@ function highlight(text) {
 
   if (Store.searchTerm) {
     parsed = parsed.replace(new RegExp(Store.searchTerm, 'gi'), function (match, capture) {
-      result.push(<span style={{backgroundColor: colors.accent}}>{match}</span>);
+      result.push(<span key={i++} style={{backgroundColor: colors.accent}}>{match}</span>);
       return REPLACEMENT;
     })
   }
