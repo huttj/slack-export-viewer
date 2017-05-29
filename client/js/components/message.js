@@ -213,8 +213,6 @@ function highlight(text) {
   const REPLACEMENT = '~~~REPLACEMENT~~~';
   const result = [];
 
-  let i = 9000;
-
   let parsed = text
     .replace(/&(\w+);/g, function (match, capture) {
       switch (capture) {
@@ -231,7 +229,7 @@ function highlight(text) {
 
   if (Store.searchTerm) {
     parsed = parsed.replace(new RegExp(Store.searchTerm, 'gi'), function (match, capture) {
-      result.push(<span key={i++} style={{backgroundColor: colors.accent}}>{match}</span>);
+      result.push(<span style={{backgroundColor: colors.accent}}>{match}</span>);
       return REPLACEMENT;
     })
   }
