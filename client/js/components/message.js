@@ -134,9 +134,11 @@ function messageText(text = '') {
   let i = 0;
 
   return text
-    .replace(/<([^>]+)>|(\*[^*]+\*)|(_[^_]+_)|\n|(```[^`]+```)/g, function (match, capture) {
+    .replace(/<([^>]+)>|(\*[^*]+\*)|(_[^_]+_)|(?:\n?&gt;\s*[^\n]+($|\n)+)|\n|(```[^`]+```)/g, function (match, capture) {
 
       const str = (capture || match);
+
+
 
       switch (str[0]) {
         case '@':
@@ -154,8 +156,18 @@ function messageText(text = '') {
         case '*':
           result.push(<em key={i++}>{highlight(str.slice(1, -1))}</em>);
           break;
+
+        case '&':
         case '\n':
-          result.push(<br key={i++} />);
+
+          const quote = str.match(/\n?\s*&gt;\s*([^\n]+)/);
+
+          if (quote) {
+            result.push(<p style={{ borderLeft: '4px solid rgba(0,0,0,.2)', paddingLeft: 8 }}>{highlight(quote[1].trim())}</p>)
+          } else {
+
+            result.push(<br key={i++} />);
+          }
           break;
         case '`':
           result.push(<pre key={i++} style={{width: '100%', overflow: 'auto'}}>{highlight(str.slice(3, -3))}</pre>);
