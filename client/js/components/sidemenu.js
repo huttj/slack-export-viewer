@@ -5,6 +5,8 @@ import Store from '../store';
 import { colors } from '../constants';
 import commas from '../util/commas'
 
+
+
 @observer
 export default class SideMenu extends Component {
   render() {
@@ -17,12 +19,12 @@ export default class SideMenu extends Component {
     return (
       <div style={{ flex: '0 0 300px', width: 300, backgroundColor: colors.primaryDark, display: 'flex', flexDirection: 'column' }}>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '50%' }}>
           <h3 style={{ flex: 0, color: colors.icon, fontWeight: '100', padding: 12, margin: 0, boxShadow: '0 0 12px 3px rgba(0,0,0,.15)', backgroundColor: colors.primary, zIndex: 1000 }}>Channels</h3>
           <div style={{ flex: 1, height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>{channels}</div>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '50%' }}>
           <h3 style={{ flex: 0, color: colors.icon, fontWeight: '100', padding: 12, margin: 0, boxShadow: '0 0 12px 3px rgba(0,0,0,.15)', backgroundColor: colors.primary, zIndex: 1000 }}>Users</h3>
           <div style={{ flex: 1, height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>{users}</div>
         </div>

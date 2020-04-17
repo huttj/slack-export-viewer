@@ -16,12 +16,13 @@ interface for consuming the API.
 1. Install the dependencies.  
     `npm i` 
     
-2. Generate a Slack export and unzip the contents to the `slack_export` directory.
+2. [Generate a Slack export](https://slack.com/help/articles/201658943-Export-your-workspace-data) and unzip the contents 
+to the `slack_export` directory.
 
 3. Run the app.  
     `npm start`
     
-4. Open `localhost:5000` in your browser.
+4. Open `localhost:3000` in your browser.
 
 
 ## Future Improvements

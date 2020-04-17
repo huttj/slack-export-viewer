@@ -1,27 +1,19 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 
-const webpack = require('webpack');
-const webpackConfig = require('./webpack.config');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
-
-const compiler = webpack(webpackConfig);
-
-const channels   = require('./controllers/channels');
+const channels = require('./controllers/channels');
 const { search } = require('./controllers/search');
-const users      = require('./controllers/users');
+const users = require('./controllers/users');
 
 
 express()
-  .use(webpackDevMiddleware(compiler, {noInfo: true, publicPath: webpackConfig.output.publicPath}))
-  .use(webpackHotMiddleware(compiler))
   .use(morgan('combined'))
-  .use(express.static('./client'))
   .use(bodyParser.json())
+  .use(cors())
 
   .get('/users', users.list)
   .get('/users/:id', users.get)

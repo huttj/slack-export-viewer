@@ -1,5 +1,7 @@
 import {observable, computed} from 'mobx';
 
+const BASE_URI = 'http://localhost:5000';
+
 class Store {
 
   @observable selectedMessage = null;
@@ -43,7 +45,8 @@ class Store {
 
   async search(channelName) {
     if (!this.searchTerm) return;
-    const channels = await this.fetch('/search/' + this.searchTerm + (channelName ? '?channel=' + channelName : ''));
+    const search = this.searchTerm + (channelName ? '?channel=' + channelName : '');
+    const channels = await this.fetch(`${BASE_URI}/search/${search}`);
     channels.forEach(c => c.type = 'search');
     this.scrollPos = 0;
     this.display = channels;
@@ -51,18 +54,18 @@ class Store {
 
   async loadChannels() {
     console.log("LOADING CHANNELS");
-    this.channels = await this.fetch('./channels');
-    this.channels = await this.fetch('./channels?count=true');
+    this.channels = await this.fetch(`${BASE_URI}/channels`);
+    this.channels = await this.fetch(`${BASE_URI}/channels?count=true`);
   }
 
   async loadUsers() {
-    this.users = await this.fetch('./users');
+    this.users = await this.fetch(`${BASE_URI}/users`);
     this.usersById = this.users.reduce((acc, user) => {
       acc[user.id] = user;
       return acc;
     }, {});
 
-    this.users = await this.fetch('./users?count=true');
+    this.users = await this.fetch(`${BASE_URI}/users?count=true`);
     this.usersById = this.users.reduce((acc, user) => {
       acc[user.id] = user;
       return acc;
@@ -89,7 +92,7 @@ class Store {
 
   async loadMessage(channelName, {user, ts}) {
     const channel = this.channels.find(channel => channel.name === channelName);
-    const { selectedMessage, messages } = await this.fetch('./channels/' + channelName + '?after=true&before=true&user=' + user + '&ts=' + ts);
+    const { selectedMessage, messages } = await this.fetch(`${BASE_URI}/channels/${channelName}?after=true&before=true&user=${user}&ts=${ts}`);
 
     this.selectedMessage = selectedMessage;
 
@@ -108,7 +111,7 @@ class Store {
 
       this.scrollPos = 0;
 
-      const { messages } = await this.fetch('./channels/' + channel.name);
+      const { messages } = await this.fetch(`${BASE_URI}/channels/${channel.name}`);
       channel.type = 'channel';
       channel.messages = messages;
 
@@ -118,7 +121,7 @@ class Store {
 
       const { user, ts } = channel.messages[channel.messages.length-1];
 
-      const { messages } = await this.fetch('./channels/' + channel.name + '?after=true&user=' + user + '&ts=' + ts);
+      const { messages } = await this.fetch(`${BASE_URI}/channels/${channel.name}?after=true&user=${user}&ts=${ts}`);
       channel.messages.push(...messages.slice(1));
 
     } else if (page === 'prev') {
@@ -128,7 +131,7 @@ class Store {
 
       const { user, ts } = channel.messages[0];
 
-      const { messages } = await this.fetch('./channels/' + channel.name + '?before=true&user=' + user + '&ts=' + ts);
+      const { messages } = await this.fetch(`${BASE_URI}/channels/` + channel.name + '?before=true&user=' + user + '&ts=' + ts);
       channel.messages.unshift(...messages.slice(0,-1));
 
     } else {
@@ -152,7 +155,7 @@ class Store {
 
       this.selectedMessage = null;
       const { ts } = user.messages[user.messages.length-1];
-      const messages = await this.fetch('./users/' + user.id + '?after=true&user=' + user.id + '&ts=' + ts);
+      const messages = await this.fetch(`${BASE_URI}/users/` + user.id + '?after=true&user=' + user.id + '&ts=' + ts);
       user.messages.push(...messages.slice(1));
 
     } else if (page === 'prev') {
@@ -162,7 +165,7 @@ class Store {
 
       const { ts } = user.messages[0];
 
-      const messages = await this.fetch('./users/' + user.id + '?before=true&user=' + user.id + '&ts=' + ts);
+      const messages = await this.fetch(`${BASE_URI}/users/` + user.id + '?before=true&user=' + user.id + '&ts=' + ts);
       user.messages.unshift(...messages.slice(0,-1));
 
     }

@@ -11,8 +11,8 @@ const render = Component => ReactDOM.render(<Component/>, document.getElementByI
 render(App);
 
 document.body.addEventListener('click', ()=>render(App));
-//
+
 // // Hot Module Replacement API
-// if (module.hot) {
-//   module.hot.accept('./components/app', ()=>render(App));
-// }
+if (module.hot) {
+  module.hot.accept(()=>render(App));
+}

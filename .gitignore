@@ -1,3 +1,13 @@
 /node_modules
 /slack_backup
 /.idea
+
+# Parcel folders
+.cache/
+dist/
+
+# User data
+slack_export/
+
+# Visual Studio Code history extension
+.history/
