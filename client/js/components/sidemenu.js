@@ -1,38 +1,95 @@
-import React, { Component } from 'react';
+import React, { useState, Component } from 'react';
 import { observer } from 'mobx-react';
+import styled from 'styled-components';
 
 import Store from '../store';
 import { colors } from '../constants';
 import commas from '../util/commas'
 
+import SearchInput from './SearchInput';
+
+const Search = styled(SearchInput)`
+  flex: 0;
+  padding: 8px;
+`;
 
 
-@observer
-export default class SideMenu extends Component {
-  render() {
+const Wrapper = styled('div')`
+  flex: 0 0 300px;
+  width: 300px;
+  background-color: ${colors.primaryDark};
+  display: flex;
+  flex-direction: column;
+`;
 
-    const channels = Store.channels.map(channel => <ChannelItem channel={channel} key={channel.name} />);
+const Section = styled('div')`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 50%;
+`;
 
-    const users = Store.users.map(user => <UserItem user={user} key={user.name}/>);
+const SectionTitle = styled('h3')`
+  flex: 0;
+  color: ${colors.icon};
+  font-weight: 100;
+  padding: 12px;
+  margin: 0;
+  box-shadow: 0 0 12px 3px rgba(0,0,0,.15);
+  background-color: ${colors.primary};
+  z-index: 1000;
+`;
+
+const SectionInner = styled('div')`
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
 
 
-    return (
-      <div style={{ flex: '0 0 300px', width: 300, backgroundColor: colors.primaryDark, display: 'flex', flexDirection: 'column' }}>
-
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '50%' }}>
-          <h3 style={{ flex: 0, color: colors.icon, fontWeight: '100', padding: 12, margin: 0, boxShadow: '0 0 12px 3px rgba(0,0,0,.15)', backgroundColor: colors.primary, zIndex: 1000 }}>Channels</h3>
-          <div style={{ flex: 1, height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>{channels}</div>
-        </div>
-
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '50%' }}>
-          <h3 style={{ flex: 0, color: colors.icon, fontWeight: '100', padding: 12, margin: 0, boxShadow: '0 0 12px 3px rgba(0,0,0,.15)', backgroundColor: colors.primary, zIndex: 1000 }}>Users</h3>
-          <div style={{ flex: 1, height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>{users}</div>
-        </div>
-
-      </div>
-    );
-  }
+function needle(str1, str2) {
+  return str1.toLowerCase().includes(str2);
 }
+
+
+export default observer(function SideMenu(props) {
+
+
+  const [channelFilter, setChannelFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
+
+  const channelFilterLower = channelFilter.toLowerCase();
+  const userFilterLower = userFilter.toLowerCase();
+
+  const channels = Store.channels
+    .filter(c => !channelFilter || needle(c.name, channelFilterLower))
+    .map(channel => <ChannelItem channel={channel} key={channel.name} />);
+
+  const users = Store.users
+    .filter(u => !userFilter || needle(u.name, userFilterLower))
+    .map(user => <UserItem user={user} key={user.name} />);
+
+
+  return (
+    <Wrapper>
+
+      <Section>
+        <SectionTitle>Channels</SectionTitle>
+        <Search placeholder="Search channels" value={channelFilter} onChange={e => setChannelFilter(e.target.value)} />
+        <SectionInner>{channels}</SectionInner>
+      </Section>
+
+      <Section>
+        <SectionTitle>Users</SectionTitle>
+        <Search placeholder="Search users" value={userFilter} onChange={e => setUserFilter(e.target.value)} />
+        <SectionInner>{users}</SectionInner>
+      </Section>
+
+    </Wrapper>
+  );
+});
+
 
 
 @observer
@@ -56,7 +113,7 @@ class ChannelItem extends Component {
     return (
       <a
         href={'#' + channel.name}
-        style={{textDecoration: 'none'}}
+        style={{ textDecoration: 'none' }}
         onClick={() => {
           Store.scrollPos = 0;
           Store.selectedMessage = null;
@@ -99,7 +156,7 @@ class UserItem extends Component {
     return (
       <a
         href={'#' + user.name}
-        style={{textDecoration: 'none'}}
+        style={{ textDecoration: 'none' }}
         onClick={() => {
           Store.selectedMessage = null;
           Store.loadUser(user);

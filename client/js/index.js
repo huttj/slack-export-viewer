@@ -6,13 +6,13 @@ import App from './components/app';
 
 // AppContainer is a necessary wrapper component for HMR
 
-const render = Component => ReactDOM.render(<Component/>, document.getElementById('root'));
+const render = () => ReactDOM.render(<App/>, document.getElementById('root'));
 
-render(App);
+render();
 
-document.body.addEventListener('click', ()=>render(App));
+// document.body.addEventListener('click', ()=>render(App));
 
 // // Hot Module Replacement API
 if (module.hot) {
-  module.hot.accept(()=>render(App));
+  module.hot.accept(render);
 }
